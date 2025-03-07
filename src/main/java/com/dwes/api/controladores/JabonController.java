@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.dwes.api.entidades.Ingrediente;
 import com.dwes.api.entidades.Jabon;
@@ -190,6 +191,42 @@ public class JabonController {
 
         // Devuelve una respuesta con el jabón creado y el código de estado 201 (CREATED)
         return ResponseEntity.status(HttpStatus.CREATED).body(jabonCreado);
+    }
+    
+    
+    @GetMapping("/{id}/clima")
+    @Operation(summary = "Obtener el clima de un jabón", description = "Consulta el clima de la ubicación de un jabón")
+    @ApiResponse(responseCode = "200", description = "Clima obtenido exitosamente")
+    @ApiResponse(responseCode = "404", description = "Jabón no encontrado")
+    public ResponseEntity<Map<String, Object>> obtenerClimaDeJabon(@PathVariable Long id) {
+        logger.info("## obtenerClimaDeJabon id:({}) ##", id);
+
+        // 1) Buscar el Jabon en la base de datos
+        Jabon jabon = jabonService.findById(id)
+            .orElseThrow(() -> new JabonNotFoundException("Jabón con ID " + id + " no encontrado"));
+
+        // 2) Obtener la ciudad del jabón
+        String ciudad = jabon.getCiudad();
+        if (ciudad == null || ciudad.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "El jabón no tiene una ciudad asociada"));
+        }
+
+        // 3) Llamar a la API externa para obtener el clima
+        String apiKey = "f1a29e26706b4b4fabb81937250703";
+        String url = "http://api.weatherapi.com/v1/current.json?key=" + apiKey + "&q=" + ciudad;
+
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String, Object> respClima = restTemplate.getForObject(url, Map.class);
+
+        // 4) Construir la respuesta
+        Map<String, Object> resultado = Map.of(
+            "jabonId", jabon.getId(),
+            "nombre", jabon.getNombre(),
+            "ciudad", ciudad,
+            "clima", respClima
+        );
+
+        return ResponseEntity.ok(resultado);
     }
 
 }

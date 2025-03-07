@@ -24,6 +24,8 @@ public class Jabon extends Producto {
     @ElementCollection
     @CollectionTable(name = "jabon_ingredientes", joinColumns = @JoinColumn(name = "jabon_id"))
     private List<Ingrediente> ingredientes = new ArrayList<>();
+    
+    private String ciudad;
 
 	public String getAroma() {
 		return aroma;
@@ -48,6 +50,14 @@ public class Jabon extends Producto {
 	public void setIngredientes(List<Ingrediente> ingredientes) {
 		this.ingredientes = ingredientes;
 	}
+	
+	public String getCiudad() {
+        return ciudad;
+    }
+
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
 	
 	
     

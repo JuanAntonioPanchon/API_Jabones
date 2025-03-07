@@ -25,11 +25,8 @@ public class InicializarDatos implements CommandLineRunner {
     Faker faker = new Faker();
     
     
-	@Override
-	public void run(String... args) throws Exception {
-		
-
-
+    @Override
+    public void run(String... args) throws Exception {
         for (int i = 0; i < 100; i++) {
             Jabon jabon = new Jabon();
             jabon.setNombre(faker.commerce().productName());
@@ -40,17 +37,18 @@ public class InicializarDatos implements CommandLineRunner {
             jabon.setAroma(faker.lorem().word());
             jabon.setTipoDePiel(TipoDePiel.values()[faker.random().nextInt(TipoDePiel.values().length)]); // Asume que tienes una enumeración TipoDePiel
             
+            // Agregar ciudad aleatoria al jabón
+            jabon.setCiudad(faker.address().city()); // Asume que tienes un campo `ciudad` en la clase `Jabon`
+            
             List<Ingrediente> ingredientes = new ArrayList<>();
             for (int j = 0; j < faker.number().numberBetween(1, 5); j++) {
-                // Asume que tienes un método para generar un Ingrediente ficticio
                 ingredientes.add(generarIngredienteFicticio(faker));
             }
             jabon.setIngredientes(ingredientes);
 
             jabonRepository.save(jabon);
         }
-	}
-	
+    }
 	private Ingrediente generarIngredienteFicticio(Faker faker) {
 	    Ingrediente ingrediente = new Ingrediente();
 	    String[] elementos = {"jabón de glicerina", "gel aloe vera", "miel", "aceite de oliva", "ralladura de limón", "aceite esencial"};
